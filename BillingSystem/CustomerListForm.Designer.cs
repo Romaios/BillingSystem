@@ -67,7 +67,8 @@
             dgvCustomers.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvCustomers.Size = new Size(758, 280);
             dgvCustomers.TabIndex = 1;
-            dgvCustomers.CellContentClick += dgvCustomers_CellContentClick;
+            dgvCustomers.CellContentDoubleClick += dgvCustomers_CellDoubleClick;
+            dgvCustomers.SelectionChanged += dgvCustomers_SelectionChanged;
             // 
             // CustomerID
             // 
@@ -130,6 +131,7 @@
             btnDelete.TabIndex = 3;
             btnDelete.Text = "Delete";
             btnDelete.UseVisualStyleBackColor = true;
+            btnDelete.Click += btnDelete_Click;
             // 
             // btnLogout
             // 
@@ -152,9 +154,9 @@
             // 
             // txtSearch
             // 
-            txtSearch.Location = new Point(211, 25);
+            txtSearch.Location = new Point(332, 25);
             txtSearch.Name = "txtSearch";
-            txtSearch.Size = new Size(432, 27);
+            txtSearch.Size = new Size(311, 27);
             txtSearch.TabIndex = 6;
             // 
             // CustomerListForm

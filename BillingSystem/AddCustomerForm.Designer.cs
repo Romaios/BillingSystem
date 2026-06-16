@@ -188,6 +188,7 @@
             Name = "AddCustomerForm";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Billing System - Add Customer";
+            Load += AddCustomerForm_Load;
             ResumeLayout(false);
             PerformLayout();
         }
