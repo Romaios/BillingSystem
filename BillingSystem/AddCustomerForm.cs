@@ -1,4 +1,7 @@
-﻿using System;
+﻿using BillingSystem.Database;
+using BillingSystem.Utils;
+using MySql.Data.MySqlClient;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -7,8 +10,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using MySql.Data.MySqlClient;
-using BillingSystem.Database;
 
 
 namespace BillingSystem
@@ -154,6 +155,7 @@ namespace BillingSystem
             if (_editCustomerId == 0)
             {
                 InsertCustomer(); // Add Mode - From Activity 3
+
             }
             else
             {
@@ -246,6 +248,9 @@ namespace BillingSystem
                         {
                             MessageBox.Show("Customer updated successfully.",
                                 "Updated", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            
+                            AuditLogger.Log("EDIT_CUSTOMER",
+                                $"Customer ID {_editCustomerId} updated by {AppSession.CurrentUsername}.");
 
                             // Close the form — CustomerListForm will refresh on close
                             this.Close();
