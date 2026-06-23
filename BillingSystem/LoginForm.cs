@@ -9,6 +9,7 @@ namespace BillingSystem
         public LoginForm()
         {
             InitializeComponent();
+            FormResizer.Enable(this);
         }
 
         private void btnLogin_Click(object sender, EventArgs e)
@@ -37,7 +38,7 @@ namespace BillingSystem
                 {
                     conn.Open();
 
-                    // Parameterized query — safe from SQL injection
+                    // Parameterized query ï¿½ safe from SQL injection
                     string sql = @"SELECT UserID, FullName, Role
                            FROM   Users
                            WHERE  Username = @Username
@@ -63,13 +64,13 @@ namespace BillingSystem
                                     $"{AppSession.CurrentFullName} ({AppSession.CurrentRole}) logged in.");
 
                                 // Open the Customer List Form
-                                CustomerListForm listForm = new CustomerListForm();
+                                CustomerListForm listForm = new CustomerListForm(this);
                                 listForm.Show();
                                 this.Hide();
                             }
                             else
                             {
-                                // No match found — wrong credentials
+                                // No match found ï¿½ wrong credentials
                                 MessageBox.Show(
                                     "Invalid username or password.\nPlease try again.",
                                     "Login Failed",
@@ -91,6 +92,17 @@ namespace BillingSystem
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
             }
+        }
+
+        /// <summary>
+        /// Resets the login form for re-use after a logout: clears the
+        /// password (and username) and puts focus back on the username box.
+        /// </summary>
+        public void ResetForLogin()
+        {
+            txtPassword.Clear();
+            txtUsername.Clear();
+            txtUsername.Focus();
         }
 
         private void LoginForm_Load(object sender, EventArgs e)

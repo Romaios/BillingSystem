@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            components = new System.ComponentModel.Container();
             lblTitle = new Label();
             dgvCustomers = new DataGridView();
             CustomerID = new DataGridViewTextBoxColumn();
@@ -46,12 +47,15 @@
             btnExportPdf = new Button();
             btnAuditLog = new Button();
             btnManagePermissions = new Button();
+            btnChangePassword = new Button();
+            btnViewBilling = new Button();
             statusStrip1 = new StatusStrip();
             lblStatusUser = new ToolStripStatusLabel();
             lblStatusSep = new ToolStripStatusLabel();
             lblStatusTime = new ToolStripStatusLabel();
             pnlTop = new Panel();
             pnlBottom = new Panel();
+            statusTImer = new System.Windows.Forms.Timer(components);
             ((System.ComponentModel.ISupportInitialize)dgvCustomers).BeginInit();
             statusStrip1.SuspendLayout();
             pnlTop.SuspendLayout();
@@ -225,6 +229,26 @@
             btnManagePermissions.UseVisualStyleBackColor = true;
             btnManagePermissions.Click += btnManagePermissions_Click;
             // 
+            // btnChangePassword
+            // 
+            btnChangePassword.Location = new Point(257, 61);
+            btnChangePassword.Name = "btnChangePassword";
+            btnChangePassword.Size = new Size(163, 43);
+            btnChangePassword.TabIndex = 15;
+            btnChangePassword.Text = "Change Password";
+            btnChangePassword.UseVisualStyleBackColor = true;
+            btnChangePassword.Click += btnChangePassword_Click;
+            // 
+            // btnViewBilling
+            // 
+            btnViewBilling.Location = new Point(495, 61);
+            btnViewBilling.Name = "btnViewBilling";
+            btnViewBilling.Size = new Size(120, 43);
+            btnViewBilling.TabIndex = 16;
+            btnViewBilling.Text = "View Billing";
+            btnViewBilling.UseVisualStyleBackColor = true;
+            btnViewBilling.Click += btnViewBilling_Click;
+            // 
             // statusStrip1
             // 
             statusStrip1.ImageScalingSize = new Size(20, 20);
@@ -238,21 +262,20 @@
             // lblStatusUser
             // 
             lblStatusUser.Name = "lblStatusUser";
-            lblStatusUser.Size = new Size(153, 20);
-            lblStatusUser.Text = "ToolStripStatusLabel1";
+            lblStatusUser.Size = new Size(84, 20);
+            lblStatusUser.Text = "User/Status";
             // 
             // lblStatusSep
             // 
             lblStatusSep.Name = "lblStatusSep";
-            lblStatusSep.Size = new Size(463, 20);
+            lblStatusSep.Size = new Size(641, 20);
             lblStatusSep.Spring = true;
-            lblStatusSep.Text = "toolStripStatusLabel2";
             // 
             // lblStatusTime
             // 
             lblStatusTime.Name = "lblStatusTime";
-            lblStatusTime.Size = new Size(151, 20);
-            lblStatusTime.Text = "toolStripStatusLabel1";
+            lblStatusTime.Size = new Size(42, 20);
+            lblStatusTime.Text = "Time";
             // 
             // pnlTop
             // 
@@ -274,10 +297,18 @@
             pnlBottom.Controls.Add(btnExportExcel);
             pnlBottom.Controls.Add(btnAdd);
             pnlBottom.Controls.Add(btnDelete);
+            pnlBottom.Controls.Add(btnChangePassword);
+            pnlBottom.Controls.Add(btnViewBilling);
             pnlBottom.Location = new Point(12, 364);
             pnlBottom.Name = "pnlBottom";
             pnlBottom.Size = new Size(758, 122);
             pnlBottom.TabIndex = 14;
+            // 
+            // statusTImer
+            // 
+            statusTImer.Enabled = true;
+            statusTImer.Interval = 1000;
+            statusTImer.Tick += statusTimer_Tick;
             // 
             // CustomerListForm
             // 
@@ -322,11 +353,14 @@
         private Button btnExportPdf;
         private Button btnAuditLog;
         private Button btnManagePermissions;
+        private Button btnChangePassword;
+        private Button btnViewBilling;
         private StatusStrip statusStrip1;
         private ToolStripStatusLabel lblStatusUser;
         private ToolStripStatusLabel lblStatusSep;
         private ToolStripStatusLabel lblStatusTime;
         private Panel pnlTop;
         private Panel pnlBottom;
+        private System.Windows.Forms.Timer statusTImer;
     }
 }

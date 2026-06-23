@@ -40,6 +40,7 @@
             chkAuditLogs = new CheckBox();
             button1 = new Button();
             button2 = new Button();
+            chkChangePassword = new CheckBox();
             SuspendLayout();
             // 
             // lblTitle
@@ -99,6 +100,7 @@
             chkDeleteCustomer.TabIndex = 5;
             chkDeleteCustomer.Text = "Delete Customer";
             chkDeleteCustomer.UseVisualStyleBackColor = true;
+            chkDeleteCustomer.CheckedChanged += chkDeleteCustomer_CheckedChanged;
             // 
             // chkAnalytics
             // 
@@ -160,11 +162,22 @@
             button2.UseVisualStyleBackColor = true;
             button2.Click += btnClose_Click;
             // 
+            // chkChangePassword
+            // 
+            chkChangePassword.AutoSize = true;
+            chkChangePassword.Location = new Point(36, 324);
+            chkChangePassword.Name = "chkChangePassword";
+            chkChangePassword.Size = new Size(146, 24);
+            chkChangePassword.TabIndex = 12;
+            chkChangePassword.Text = "Change Password";
+            chkChangePassword.UseVisualStyleBackColor = true;
+            // 
             // frmManagePermissions
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(432, 413);
+            Controls.Add(chkChangePassword);
             Controls.Add(button2);
             Controls.Add(button1);
             Controls.Add(chkAuditLogs);
@@ -177,7 +190,7 @@
             Controls.Add(cmbRole);
             Controls.Add(label2);
             Controls.Add(lblTitle);
-            FormBorderStyle = FormBorderStyle.FixedSingle;
+            FormBorderStyle = FormBorderStyle.Sizable;
             Name = "frmManagePermissions";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Manage Permissions";
@@ -200,5 +213,6 @@
         private CheckBox chkAuditLogs;
         private Button button1;
         private Button button2;
+        private CheckBox chkChangePassword;
     }
 }

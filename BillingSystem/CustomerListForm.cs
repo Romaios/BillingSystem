@@ -26,8 +26,21 @@ namespace BillingSystem
         // 0 means no customer is currently selected.
         private int _selectedCustomerId = 0;
 
+        // The grid auto-selects its first row when data is bound and again during
+        // the form's first render. We ignore those automatic selections so the
+        // user must deliberately click a row before _selectedCustomerId is set
+        // (this keeps the "no customer selected" check / Popup 1 reachable).
+        private bool _ignoreSelection = true;
+
+        // The login form that opened this window. Kept hidden while the user
+        // is logged in so logout can re-show it instead of re-creating it.
+        private readonly LoginForm? _loginForm;
+
         private void dgvCustomers_SelectionChanged(object sender, EventArgs e)
         {
+            // Ignore the grid's automatic selection until the form is shown.
+            if (_ignoreSelection) return;
+
             //If no row is selected (e.g., grid is empty), do nothing
             if (dgvCustomers.CurrentRow == null) return;
 
@@ -37,6 +50,12 @@ namespace BillingSystem
             if (idCell != null && int.TryParse(idCell.ToString(), out int id))
             {
                 _selectedCustomerId = id;
+            }
+            else
+            {
+                // Blank/new-row placeholder (or non-numeric) — there is no valid
+                // customer here, so forget any previously selected one.
+                _selectedCustomerId = 0;
             }
         }
 
@@ -48,10 +67,64 @@ namespace BillingSystem
             OpenEditForm();
         }
 
-        public CustomerListForm()
+        public CustomerListForm(LoginForm? loginForm = null)
         {
             InitializeComponent();
             ConfigureDataGridView();
+            WireSelectionClearBehavior();
+            _loginForm = loginForm;
+            FormResizer.Enable(this);
+
+            // Clear the grid's automatic selection AFTER the form is fully shown
+            // (Load runs too early — the grid re-selects row 0 during first paint).
+            this.Shown += CustomerListForm_Shown;
+        }
+
+        private void CustomerListForm_Shown(object? sender, EventArgs e)
+        {
+            ClearCustomerSelection();
+
+            // From now on, honor genuine user-initiated selections.
+            _ignoreSelection = false;
+        }
+
+        // Resets the grid to "no customer selected" so the next action must
+        // start from a deliberate row click (don't remember the last pick).
+        private void ClearCustomerSelection()
+        {
+            dgvCustomers.ClearSelection();
+            dgvCustomers.CurrentCell = null;
+            _selectedCustomerId = 0;
+        }
+
+        private void WireSelectionClearBehavior()
+        {
+            this.MouseDown += ClearSelectionSurface_MouseDown;
+            pnlTop.MouseDown += ClearSelectionSurface_MouseDown;
+            pnlBottom.MouseDown += ClearSelectionSurface_MouseDown;
+            statusStrip1.MouseDown += ClearSelectionSurface_MouseDown;
+            lblTitle.MouseDown += ClearSelectionSurface_MouseDown;
+            txtSearch.MouseDown += ClearSelectionSurface_MouseDown;
+            dgvCustomers.MouseDown += dgvCustomers_MouseDown;
+        }
+
+        private void ClearSelectionSurface_MouseDown(object? sender, MouseEventArgs e)
+        {
+            if (_ignoreSelection) return;
+
+            ClearCustomerSelection();
+        }
+
+        private void dgvCustomers_MouseDown(object? sender, MouseEventArgs e)
+        {
+            if (_ignoreSelection) return;
+
+            var hit = dgvCustomers.HitTest(e.X, e.Y);
+
+            if (hit.Type == DataGridViewHitTestType.None)
+            {
+                ClearCustomerSelection();
+            }
         }
 
 
@@ -115,6 +188,8 @@ namespace BillingSystem
             LoadCustomers();
             ApplyPermissions();
             InitStatusStrip();
+            // Note: the initial-selection reset happens in CustomerListForm_Shown,
+            // because the grid re-selects row 0 during the first paint after Load.
         }
 
         private void SearchCustomers(string keyword)
@@ -462,9 +537,25 @@ namespace BillingSystem
 
         private void btnLogout_Click(object sender, EventArgs e)
         {
+            // Audit the logout BEFORE clearing the session, so the entry
+            // still records who logged out.
             AuditLogger.Log("LOGOUT",
                 $"{AppSession.CurrentFullName} ({AppSession.CurrentRole}) logged out.");
             AppSession.Clear();
+
+            // Return to the Login screen and close this window.
+            if (_loginForm != null && !_loginForm.IsDisposed)
+            {
+                _loginForm.ResetForLogin();
+                _loginForm.Show();
+            }
+            else
+            {
+                // Fallback: no reference available — start a fresh Login form.
+                new LoginForm().Show();
+            }
+
+            this.Close();
         }
 
         private void btnAuditLog_Click(object sender, EventArgs e)
@@ -477,6 +568,37 @@ namespace BillingSystem
         {
             frmManagePermissions permForm = new frmManagePermissions();
             permForm.ShowDialog(this);
+        }
+
+        private void btnChangePassword_Click(object sender, EventArgs e)
+        {
+            frmChangePassword form = new frmChangePassword();
+            form.ShowDialog(this);
+        }
+
+        private void btnViewBilling_Click(object sender, EventArgs e)
+        {
+            // Popup 1 — a customer must be selected first. The form does NOT open.
+
+
+            if (_selectedCustomerId == 0)
+            {
+                MessageBox.Show("Please select a customer to view billing records.",
+                    "No Selection", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Pass the selected customer's ID (never a name) to the history form.
+
+
+            frmBillingHistory form = new frmBillingHistory(_selectedCustomerId);
+            form.ShowDialog(this);
+
+            // Clear the selection afterwards so the next View Billing requires a
+            // fresh pick instead of reusing this customer.
+
+
+            ClearCustomerSelection();
         }
 
         private void ApplyPermissions()
@@ -522,6 +644,8 @@ namespace BillingSystem
                                         btnAuditLog.Enabled = isAllowed; break;
                                     case "ManagePermissions":
                                         btnManagePermissions.Enabled = isAllowed; break;
+                                    case "ChangePassword":
+                                        btnChangePassword.Enabled = isAllowed; break;
                                 }
                             }
                         }
@@ -588,6 +712,11 @@ namespace BillingSystem
         }
 
         private void lblTitle_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
         {
 
         }

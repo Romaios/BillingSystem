@@ -4,6 +4,7 @@ using System.Windows.Forms;
 using System.Collections.Generic;
 using MySql.Data.MySqlClient;
 using BillingSystem.Database;
+using BillingSystem.Utils;
 using ScottPlot;
 
 namespace BillingSystem
@@ -17,6 +18,7 @@ namespace BillingSystem
             dgvTop5.Columns["FullName"].DataPropertyName = "FullName";
             dgvTop5.Columns["TotalConsumption"].DataPropertyName = "TotalConsumption";
             dgvTop5.Columns["TotalBilled"].DataPropertyName = "TotalBilled";
+            FormResizer.Enable(this);
         }
 
         private void LoadKpiSummary()

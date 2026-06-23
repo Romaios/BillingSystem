@@ -14,6 +14,7 @@ namespace BillingSystem
         public frmAuditLogs()
         {
             InitializeComponent();
+            FormResizer.Enable(this);
         }
 
         private void frmAuditLogs_Load(object sender, EventArgs e)

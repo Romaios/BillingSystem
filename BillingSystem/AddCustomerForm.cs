@@ -23,6 +23,7 @@ namespace BillingSystem
         {
             InitializeComponent();
             _editCustomerId = 0;
+            FormResizer.Enable(this);
         }
 
         //Constructor for EDIT mode - recieves the CUstomerID to edit
@@ -30,6 +31,7 @@ namespace BillingSystem
         {
             InitializeComponent();
             _editCustomerId = customerID;
+            FormResizer.Enable(this);
         }
 
         private void AddCustomerForm_Load(object sender, EventArgs e)

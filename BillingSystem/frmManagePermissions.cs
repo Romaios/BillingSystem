@@ -15,6 +15,7 @@ namespace BillingSystem
         public frmManagePermissions()
         {
             InitializeComponent();
+            FormResizer.Enable(this);
         }
 
         private void frmManagePermissions_Load(object sender, EventArgs e)
@@ -29,6 +30,7 @@ namespace BillingSystem
                 { "ExportExcel",       chkExportExcel    },
                 { "ExportPdf",         chkExportPdf      },
                 { "AuditLogs",         chkAuditLogs      },
+                { "ChangePassword",    chkChangePassword },
             };
 
             // Populate dropdown and load first role
@@ -121,6 +123,11 @@ namespace BillingSystem
         private void btnClose_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private void chkDeleteCustomer_CheckedChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

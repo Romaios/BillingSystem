@@ -183,8 +183,8 @@
             Controls.Add(lblAddress);
             Controls.Add(lblFullName);
             Controls.Add(lblTitle);
-            FormBorderStyle = FormBorderStyle.FixedSingle;
-            MaximizeBox = false;
+            FormBorderStyle = FormBorderStyle.Sizable;
+            MaximizeBox = true;
             Name = "AddCustomerForm";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Billing System - Add Customer";

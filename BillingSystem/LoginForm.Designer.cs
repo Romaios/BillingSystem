@@ -115,8 +115,8 @@
             Controls.Add(lblPassword);
             Controls.Add(lblUsername);
             Controls.Add(lblTitle);
-            FormBorderStyle = FormBorderStyle.FixedSingle;
-            MaximizeBox = false;
+            FormBorderStyle = FormBorderStyle.Sizable;
+            MaximizeBox = true;
             Name = "LoginForm";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Billing System v1.0 - Login";
