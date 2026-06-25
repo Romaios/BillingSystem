@@ -42,6 +42,7 @@ namespace BillingSystem
                 lblTitle.Text = "Edit Customer";
                 txtBalance.Text = "0.00";
                 LoadCustomerData(_editCustomerId);
+                FormResizer.Enable(this);
             }
             else
             {
@@ -250,7 +251,7 @@ namespace BillingSystem
                         {
                             MessageBox.Show("Customer updated successfully.",
                                 "Updated", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                            
+
                             AuditLogger.Log("EDIT_CUSTOMER",
                                 $"Customer ID {_editCustomerId} updated by {AppSession.CurrentUsername}.");
 
@@ -270,6 +271,29 @@ namespace BillingSystem
                 MessageBox.Show($"Error updating customer:\n{ex.Message}",
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private Form _previousForm;
+
+        // Update both constructors to accept the calling form
+        public AddCustomerForm(Form previousForm)
+        {
+            InitializeComponent();
+            _editCustomerId = 0;
+            _previousForm = previousForm;
+            FormResizer.Enable(this);
+        }
+
+
+        private void btnBack_Click(object sender, EventArgs e)
+        {
+            _previousForm.Show();
+            this.Close();
+        }
+
+        private void btnClear_Click(object sender, EventArgs e)
+        {
+            ClearFields();
         }
     }
 }

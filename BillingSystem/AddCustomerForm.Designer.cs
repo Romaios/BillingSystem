@@ -154,6 +154,7 @@
             btnClear.TabIndex = 12;
             btnClear.Text = "Clear";
             btnClear.UseVisualStyleBackColor = true;
+            btnClear.Click += btnClear_Click;
             // 
             // btnBack
             // 
@@ -163,6 +164,7 @@
             btnBack.TabIndex = 13;
             btnBack.Text = "Back";
             btnBack.UseVisualStyleBackColor = true;
+            btnBack.Click += btnBack_Click;
             // 
             // AddCustomerForm
             // 
@@ -183,8 +185,6 @@
             Controls.Add(lblAddress);
             Controls.Add(lblFullName);
             Controls.Add(lblTitle);
-            FormBorderStyle = FormBorderStyle.Sizable;
-            MaximizeBox = true;
             Name = "AddCustomerForm";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Billing System - Add Customer";
