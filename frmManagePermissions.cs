@@ -29,8 +29,11 @@ namespace BillingSystem
                 { "ExportExcel",       chkExportExcel    },
                 { "ExportPdf",         chkExportPdf      },
                 { "AuditLogs",         chkAuditLogs      },
+                { "ManageUsers",       chkManageUsers    },
                 { "ChangePassword",    chkChangePassword },
             };
+
+            EnsurePermissionRows();
 
             // Populate dropdown and load first role
             cmbRole.Items.AddRange(new object[] { "Admin", "Cashier" });
@@ -47,6 +50,11 @@ namespace BillingSystem
         {
             try
             {
+                foreach (var checkbox in _permCheckboxes.Values)
+                {
+                    checkbox.Checked = false;
+                }
+
                 using (var conn = DatabaseConnection.GetConnection())
                 {
                     conn.Open();
@@ -88,21 +96,9 @@ namespace BillingSystem
                 using (var conn = DatabaseConnection.GetConnection())
                 {
                     conn.Open();
-                    string sql = @"UPDATE UserPermissions
-                                   SET    IsAllowed = @IsAllowed
-                                   WHERE  Role = @Role
-                                     AND  PermissionName = @PermName;";
-
                     foreach (var kvp in _permCheckboxes)
                     {
-                        using (var cmd = new MySqlCommand(sql, conn))
-                        {
-                            cmd.Parameters.AddWithValue("@IsAllowed",
-                                kvp.Value.Checked ? 1 : 0);
-                            cmd.Parameters.AddWithValue("@Role", role);
-                            cmd.Parameters.AddWithValue("@PermName", kvp.Key);
-                            cmd.ExecuteNonQuery();
-                        }
+                        SavePermission(conn, role, kvp.Key, kvp.Value.Checked);
                     }
                 }
 
@@ -123,6 +119,94 @@ namespace BillingSystem
         {
             this.Close();
         }
+
+        private void EnsurePermissionRows()
+        {
+            string[] roles = { "Admin", "Cashier" };
+
+            try
+            {
+                using (var conn = DatabaseConnection.GetConnection())
+                {
+                    conn.Open();
+
+                    foreach (string role in roles)
+                    {
+                        foreach (var permissionName in _permCheckboxes.Keys)
+                        {
+                            bool defaultAllowed =
+                                role == "Admin" && permissionName == "ManageUsers";
+
+                            EnsurePermissionRow(conn, role, permissionName, defaultAllowed);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error preparing permissions:\n{ex.Message}",
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void SavePermission(
+            MySqlConnection conn,
+            string role,
+            string permissionName,
+            bool isAllowed)
+        {
+            string updateSql = @"UPDATE UserPermissions
+                                 SET    IsAllowed = @IsAllowed
+                                 WHERE  Role = @Role
+                                   AND  PermissionName = @PermName;";
+
+            using (var updateCmd = new MySqlCommand(updateSql, conn))
+            {
+                updateCmd.Parameters.AddWithValue("@IsAllowed", isAllowed ? 1 : 0);
+                updateCmd.Parameters.AddWithValue("@Role", role);
+                updateCmd.Parameters.AddWithValue("@PermName", permissionName);
+
+                int rowsAffected = updateCmd.ExecuteNonQuery();
+                if (rowsAffected > 0)
+                    return;
+            }
+
+            EnsurePermissionRow(conn, role, permissionName, isAllowed);
+        }
+
+        private void EnsurePermissionRow(
+            MySqlConnection conn,
+            string role,
+            string permissionName,
+            bool isAllowed)
+        {
+            string existsSql = @"SELECT COUNT(*)
+                                 FROM   UserPermissions
+                                 WHERE  Role = @Role
+                                   AND  PermissionName = @PermName;";
+
+            using (var existsCmd = new MySqlCommand(existsSql, conn))
+            {
+                existsCmd.Parameters.AddWithValue("@Role", role);
+                existsCmd.Parameters.AddWithValue("@PermName", permissionName);
+
+                long matches = Convert.ToInt64(existsCmd.ExecuteScalar());
+                if (matches > 0)
+                    return;
+            }
+
+            string insertSql = @"INSERT INTO UserPermissions
+                                    (Role, PermissionName, IsAllowed)
+                                 VALUES
+                                    (@Role, @PermName, @IsAllowed);";
+
+            using (var insertCmd = new MySqlCommand(insertSql, conn))
+            {
+                insertCmd.Parameters.AddWithValue("@Role", role);
+                insertCmd.Parameters.AddWithValue("@PermName", permissionName);
+                insertCmd.Parameters.AddWithValue("@IsAllowed", isAllowed ? 1 : 0);
+                insertCmd.ExecuteNonQuery();
+            }
+        }
     }
 }
-

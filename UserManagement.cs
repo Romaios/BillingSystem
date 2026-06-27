@@ -50,7 +50,7 @@ namespace BillingSystem
             UserName.DataPropertyName = "Username";
             FullName.DataPropertyName = "FullName";
             Role.DataPropertyName = "Role";
-            colCreated.DataPropertyName = "Created";
+            colCreated.DataPropertyName = "CreatedAt";
         }
 
         private void LoadUsers()
@@ -65,7 +65,7 @@ namespace BillingSystem
                                           Username,
                                           FullName,
                                           Role,
-                                          Created
+                                          CreatedAt
                                    FROM   Users
                                    ORDER  BY Username ASC;";
 

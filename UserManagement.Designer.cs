@@ -93,7 +93,7 @@
             // 
             // colCreated
             // 
-            colCreated.HeaderText = "Created";
+            colCreated.HeaderText = "Created At";
             colCreated.MinimumWidth = 6;
             colCreated.Name = "colCreated";
             colCreated.Width = 125;

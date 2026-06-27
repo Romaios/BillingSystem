@@ -41,6 +41,7 @@
             btnSave = new Button();
             btnClose = new Button();
             chkChangePassword = new CheckBox();
+            chkManageUsers = new CheckBox();
             SuspendLayout();
             // 
             // lblTitle
@@ -141,22 +142,32 @@
             chkAuditLogs.Text = "Audit Logs";
             chkAuditLogs.UseVisualStyleBackColor = true;
             // 
+            // chkManageUsers
+            // 
+            chkManageUsers.AutoSize = true;
+            chkManageUsers.Location = new Point(141, 340);
+            chkManageUsers.Name = "chkManageUsers";
+            chkManageUsers.Size = new Size(116, 24);
+            chkManageUsers.TabIndex = 18;
+            chkManageUsers.Text = "Manage Users";
+            chkManageUsers.UseVisualStyleBackColor = true;
+            // 
             // btnSave
             // 
-            btnSave.Location = new Point(12, 372);
+            btnSave.Location = new Point(12, 402);
             btnSave.Name = "btnSave";
             btnSave.Size = new Size(135, 29);
-            btnSave.TabIndex = 16;
+            btnSave.TabIndex = 19;
             btnSave.Text = "Save Permissions";
             btnSave.UseVisualStyleBackColor = true;
             btnSave.Click += btnSave_Click;
             // 
             // btnClose
             // 
-            btnClose.Location = new Point(326, 372);
+            btnClose.Location = new Point(326, 402);
             btnClose.Name = "btnClose";
             btnClose.Size = new Size(94, 29);
-            btnClose.TabIndex = 17;
+            btnClose.TabIndex = 20;
             btnClose.Text = "Close";
             btnClose.UseVisualStyleBackColor = true;
             btnClose.Click += btnClose_Click;
@@ -164,10 +175,10 @@
             // chkChangePassword
             // 
             chkChangePassword.AutoSize = true;
-            chkChangePassword.Location = new Point(141, 340);
+            chkChangePassword.Location = new Point(141, 370);
             chkChangePassword.Name = "chkChangePassword";
             chkChangePassword.Size = new Size(146, 24);
-            chkChangePassword.TabIndex = 18;
+            chkChangePassword.TabIndex = 21;
             chkChangePassword.Text = "Change Password";
             chkChangePassword.UseVisualStyleBackColor = true;
             // 
@@ -175,7 +186,8 @@
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(432, 430);
+            ClientSize = new Size(432, 462);
+            Controls.Add(chkManageUsers);
             Controls.Add(chkChangePassword);
             Controls.Add(btnClose);
             Controls.Add(btnSave);
@@ -213,5 +225,6 @@
         private Button btnSave;
         private Button btnClose;
         private CheckBox chkChangePassword;
+        private CheckBox chkManageUsers;
     }
 }

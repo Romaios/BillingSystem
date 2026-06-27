@@ -555,9 +555,14 @@ namespace BillingSystem
         {
             try
             {
+                btnusermanagement.Visible = false;
+                btnusermanagement.Enabled = false;
+
                 using (var conn = DatabaseConnection.GetConnection())
                 {
                     conn.Open();
+                    PermissionService.HasPermission(AppSession.CurrentRole, "ManageUsers");
+
                     string sql = @"SELECT PermissionName, IsAllowed
                            FROM   UserPermissions
                            WHERE  Role = @Role;";
@@ -594,6 +599,10 @@ namespace BillingSystem
                                         btnAuditLog.Enabled = isAllowed; break;
                                     case "ManagePermissions":
                                         btnManagePermissions.Enabled = isAllowed; break;
+                                    case "ManageUsers":
+                                        btnusermanagement.Visible = isAllowed;
+                                        btnusermanagement.Enabled = isAllowed;
+                                        break;
                                     case "ChangePassword":
                                         btnChangePassword.Enabled = isAllowed; break;
                                 }
@@ -695,5 +704,3 @@ namespace BillingSystem
         }
     }
 }
-
-
