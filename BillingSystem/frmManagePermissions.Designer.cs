@@ -41,6 +41,7 @@
             button1 = new Button();
             button2 = new Button();
             chkChangePassword = new CheckBox();
+            chkManageUsers = new CheckBox();
             SuspendLayout();
             // 
             // lblTitle
@@ -144,7 +145,7 @@
             // 
             // button1
             // 
-            button1.Location = new Point(12, 363);
+            button1.Location = new Point(12, 402);
             button1.Name = "button1";
             button1.Size = new Size(212, 38);
             button1.TabIndex = 10;
@@ -154,7 +155,7 @@
             // 
             // button2
             // 
-            button2.Location = new Point(276, 363);
+            button2.Location = new Point(276, 402);
             button2.Name = "button2";
             button2.Size = new Size(144, 38);
             button2.TabIndex = 11;
@@ -172,11 +173,22 @@
             chkChangePassword.Text = "Change Password";
             chkChangePassword.UseVisualStyleBackColor = true;
             // 
+            // chkManageUsers
+            // 
+            chkManageUsers.AutoSize = true;
+            chkManageUsers.Location = new Point(36, 354);
+            chkManageUsers.Name = "chkManageUsers";
+            chkManageUsers.Size = new Size(124, 24);
+            chkManageUsers.TabIndex = 13;
+            chkManageUsers.Text = "Manage Users";
+            chkManageUsers.UseVisualStyleBackColor = true;
+            // 
             // frmManagePermissions
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(432, 413);
+            ClientSize = new Size(432, 452);
+            Controls.Add(chkManageUsers);
             Controls.Add(chkChangePassword);
             Controls.Add(button2);
             Controls.Add(button1);
@@ -190,7 +202,6 @@
             Controls.Add(cmbRole);
             Controls.Add(label2);
             Controls.Add(lblTitle);
-            FormBorderStyle = FormBorderStyle.Sizable;
             Name = "frmManagePermissions";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Manage Permissions";
@@ -214,5 +225,6 @@
         private Button button1;
         private Button button2;
         private CheckBox chkChangePassword;
+        private CheckBox chkManageUsers;
     }
 }

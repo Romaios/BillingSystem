@@ -1,4 +1,4 @@
-ï»¿using BillingSystem.Database;
+using BillingSystem.Database;
 using BillingSystem.Utils;
 using MySql.Data.MySqlClient;
 using System;
@@ -80,9 +80,10 @@ namespace BillingSystem
                             }
                             else
                             {
-                                MessageBox.Show("Customer record not found.", "Error",
+                                AppMessageBox.Show("Customer record not found.", "Error",
                                     MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                this.Close();
+                                DialogResult = DialogResult.Cancel;
+                                Close();
                             }
                         }
                     }
@@ -90,7 +91,7 @@ namespace BillingSystem
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error loading customer data:\n{ex.Message}",
+                AppMessageBox.Show($"Error loading customer data:\n{ex.Message}",
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -105,7 +106,7 @@ namespace BillingSystem
             // Check Full Name
             if (string.IsNullOrWhiteSpace(txtFullName.Text))
             {
-                MessageBox.Show("Full Name is required.", "Validation",
+                AppMessageBox.Show("Full Name is required.", "Validation",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 txtFullName.Focus();
                 return false;
@@ -114,7 +115,7 @@ namespace BillingSystem
             // Check Address
             if (string.IsNullOrWhiteSpace(txtAddress.Text))
             {
-                MessageBox.Show("Address is required.", "Validation",
+                AppMessageBox.Show("Address is required.", "Validation",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 txtAddress.Focus();
                 return false;
@@ -123,7 +124,7 @@ namespace BillingSystem
             // Check Contact Number
             if (string.IsNullOrWhiteSpace(txtContact.Text))
             {
-                MessageBox.Show("Contact Number is required.", "Validation",
+                AppMessageBox.Show("Contact Number is required.", "Validation",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 txtContact.Focus();
                 return false;
@@ -132,7 +133,7 @@ namespace BillingSystem
             // Check Email
             if (string.IsNullOrWhiteSpace(txtEmail.Text))
             {
-                MessageBox.Show("Email is required.", "Validation",
+                AppMessageBox.Show("Email is required.", "Validation",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 txtEmail.Focus();
                 return false;
@@ -141,7 +142,7 @@ namespace BillingSystem
             // Check Balance is a valid number
             if (!decimal.TryParse(txtBalance.Text, out _))
             {
-                MessageBox.Show("Initial Balance must be a valid number (e.g. 0.00).",
+                AppMessageBox.Show("Initial Balance must be a valid number (e.g. 0.00).",
                     "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 txtBalance.Focus();
                 return false;
@@ -173,7 +174,7 @@ namespace BillingSystem
                 {
                     conn.Open();
 
-                    // Parameterized INSERT â€” safe from SQL injection
+                    // Parameterized INSERT — safe from SQL injection
                     string sql = @"INSERT INTO Customers
                                (FullName, Address, ContactNumber, Email, Balance, Status)
                            VALUES
@@ -195,17 +196,17 @@ namespace BillingSystem
 
                         if (rowsAffected > 0)
                         {
-                            MessageBox.Show("Customer saved successfully.",
+                            AppMessageBox.Show("Customer saved successfully.",
                                 "Saved", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                            ClearFields();
+                            DialogResult = DialogResult.OK;
+                            Close();
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error saving customer:\n{ex.Message}",
+                AppMessageBox.Show($"Error saving customer:\n{ex.Message}",
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -249,18 +250,19 @@ namespace BillingSystem
 
                         if (rowsAffected > 0)
                         {
-                            MessageBox.Show("Customer updated successfully.",
+                            AppMessageBox.Show("Customer updated successfully.",
                                 "Updated", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                             AuditLogger.Log("EDIT_CUSTOMER",
                                 $"Customer ID {_editCustomerId} updated by {AppSession.CurrentUsername}.");
 
-                            // Close the form â€” CustomerListForm will refresh on close
-                            this.Close();
+                            // Close the form — CustomerListForm will refresh on close
+                            DialogResult = DialogResult.OK;
+                            Close();
                         }
                         else
                         {
-                            MessageBox.Show("Update failed. The record may no longer exist.",
+                            AppMessageBox.Show("Update failed. The record may no longer exist.",
                                 "Update Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         }
                     }
@@ -268,27 +270,15 @@ namespace BillingSystem
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error updating customer:\n{ex.Message}",
+                AppMessageBox.Show($"Error updating customer:\n{ex.Message}",
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        private Form _previousForm;
-
-        // Update both constructors to accept the calling form
-        public AddCustomerForm(Form previousForm)
-        {
-            InitializeComponent();
-            _editCustomerId = 0;
-            _previousForm = previousForm;
-            FormResizer.Enable(this);
-        }
-
-
         private void btnBack_Click(object sender, EventArgs e)
         {
-            _previousForm.Show();
-            this.Close();
+            DialogResult = DialogResult.Cancel;
+            Close();
         }
 
         private void btnClear_Click(object sender, EventArgs e)
@@ -297,3 +287,4 @@ namespace BillingSystem
         }
     }
 }
+

@@ -51,7 +51,7 @@ namespace BillingSystem
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error loading customer name:\n{ex.Message}",
+                AppMessageBox.Show($"Error loading customer name:\n{ex.Message}",
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -106,7 +106,7 @@ namespace BillingSystem
                             // Popup 2 — the customer exists but has no billing records.
                             if (dt.Rows.Count == 0)
                             {
-                                MessageBox.Show(
+                                AppMessageBox.Show(
                                     "No billing records were found for this customer.",
                                     "Billing History",
                                     MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -117,7 +117,7 @@ namespace BillingSystem
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error loading billing records:\n{ex.Message}",
+                AppMessageBox.Show($"Error loading billing records:\n{ex.Message}",
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -128,3 +128,4 @@ namespace BillingSystem
         }
     }
 }
+

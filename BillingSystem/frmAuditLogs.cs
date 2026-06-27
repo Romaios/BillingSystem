@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Data;
 using System.Windows.Forms;
 using MySql.Data.MySqlClient;
@@ -62,7 +62,7 @@ namespace BillingSystem
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error loading audit logs:\n{ex.Message}",
+                AppMessageBox.Show($"Error loading audit logs:\n{ex.Message}",
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -71,7 +71,7 @@ namespace BillingSystem
         {
             if (dtpFrom.Value.Date > dtpTo.Value.Date)
             {
-                MessageBox.Show("Start date cannot be later than end date.",
+                AppMessageBox.Show("Start date cannot be later than end date.",
                     "Invalid Date Range", MessageBoxButtons.OK,
                     MessageBoxIcon.Warning);
                 return;
@@ -85,5 +85,6 @@ namespace BillingSystem
         }
     }
 }
+
 
 

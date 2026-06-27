@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Data;
 using System.Windows.Forms;
 using System.Collections.Generic;
@@ -37,30 +37,30 @@ namespace BillingSystem
                         lblTotalCustomers.Text = $"Total Customers: {totalCustomers}";
                     }
 
-                    // 2) Total revenue — sum of all PAID bills
+                    // 2) Total revenue � sum of all PAID bills
                     string sqlRevenue = @"SELECT IFNULL(SUM(TotalAmount), 0)
                                   FROM   Billing
                                   WHERE  Status = 'Paid';";
                     using (var cmd = new MySqlCommand(sqlRevenue, conn))
                     {
                         decimal totalRevenue = Convert.ToDecimal(cmd.ExecuteScalar());
-                        lblTotalRevenue.Text = $"Total Revenue: ₱{totalRevenue:N2}";
+                        lblTotalRevenue.Text = $"Total Revenue: ?{totalRevenue:N2}";
                     }
 
-                    // 3) Total unpaid — sum of all UNPAID bills
+                    // 3) Total unpaid � sum of all UNPAID bills
                     string sqlUnpaid = @"SELECT IFNULL(SUM(TotalAmount), 0)
                                  FROM   Billing
                                  WHERE  Status = 'Unpaid';";
                     using (var cmd = new MySqlCommand(sqlUnpaid, conn))
                     {
                         decimal totalUnpaid = Convert.ToDecimal(cmd.ExecuteScalar());
-                        lblTotalUnpaid.Text = $"Total Unpaid: ₱{totalUnpaid:N2}";
+                        lblTotalUnpaid.Text = $"Total Unpaid: ?{totalUnpaid:N2}";
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error loading KPI summary:\n{ex.Message}",
+                AppMessageBox.Show($"Error loading KPI summary:\n{ex.Message}",
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -108,14 +108,14 @@ namespace BillingSystem
 
                 plotMonthlyRevenue.Plot.Axes.Bottom.SetTicks(positions, months.ToArray());
                 plotMonthlyRevenue.Plot.Title("Monthly Revenue (Paid Bills)");
-                plotMonthlyRevenue.Plot.YLabel("Revenue (₱)");
+                plotMonthlyRevenue.Plot.YLabel("Revenue (?)");
                 plotMonthlyRevenue.Plot.XLabel("Month");
 
                 plotMonthlyRevenue.Refresh();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error loading monthly revenue chart:\n{ex.Message}",
+                AppMessageBox.Show($"Error loading monthly revenue chart:\n{ex.Message}",
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -170,7 +170,7 @@ namespace BillingSystem
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error loading Paid/Unpaid chart:\n{ex.Message}",
+                AppMessageBox.Show($"Error loading Paid/Unpaid chart:\n{ex.Message}",
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -203,14 +203,14 @@ namespace BillingSystem
                         {
                             dgvTop5.Columns["FullName"].HeaderText = "Customer Name";
                             dgvTop5.Columns["TotalConsumption"].HeaderText = "Total Consumption (cu.m.)";
-                            dgvTop5.Columns["TotalBilled"].HeaderText = "Total Billed (₱)";
+                            dgvTop5.Columns["TotalBilled"].HeaderText = "Total Billed (?)";
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error loading Top 5 customers:\n{ex.Message}",
+                AppMessageBox.Show($"Error loading Top 5 customers:\n{ex.Message}",
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -243,3 +243,4 @@ namespace BillingSystem
 
     }
 }
+

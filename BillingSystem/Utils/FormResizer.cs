@@ -41,6 +41,7 @@ namespace BillingSystem.Utils
             // Normalize every grid: clean white background, and auto-size rows so
             // their height follows the (scaled) cell font instead of clipping.
             NormalizeGrids(form);
+            WireButtonClickSounds(form);
 
             // Re-flow the controls every time the window size changes
             // (maximize, restore, or drag-resize). The form keeps its normal
@@ -63,6 +64,29 @@ namespace BillingSystem.Utils
                 if (c.HasChildren)
                     NormalizeGrids(c);
             }
+        }
+
+        private static void WireButtonClickSounds(Control parent)
+        {
+            foreach (Control c in parent.Controls)
+            {
+                if (c is Button button)
+                {
+                    button.MouseDown -= Button_MouseDownPlaySound;
+                    button.MouseDown += Button_MouseDownPlaySound;
+                }
+
+                if (c.HasChildren)
+                    WireButtonClickSounds(c);
+            }
+        }
+
+        private static void Button_MouseDownPlaySound(object? sender, MouseEventArgs e)
+        {
+            if (e.Button != MouseButtons.Left)
+                return;
+
+            UiSoundPlayer.PlayClick();
         }
 
         // Recursively records the design-time bounds and font size of every control.

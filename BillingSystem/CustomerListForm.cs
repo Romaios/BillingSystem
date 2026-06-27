@@ -1,4 +1,4 @@
-ï»¿using BillingSystem.Database;
+using BillingSystem.Database;
 using BillingSystem.Utils;
 using ClosedXML.Excel;
 using MySql.Data.MySqlClient;
@@ -35,6 +35,8 @@ namespace BillingSystem
         // The login form that opened this window. Kept hidden while the user
         // is logged in so logout can re-show it instead of re-creating it.
         private readonly LoginForm? _loginForm;
+        private bool _isLoggingOut;
+        private bool _returningToLogin;
 
         private void dgvCustomers_SelectionChanged(object sender, EventArgs e)
         {
@@ -53,7 +55,7 @@ namespace BillingSystem
             }
             else
             {
-                // Blank/new-row placeholder (or non-numeric) â€” there is no valid
+                // Blank/new-row placeholder (or non-numeric) — there is no valid
                 // customer here, so forget any previously selected one.
                 _selectedCustomerId = 0;
             }
@@ -76,8 +78,10 @@ namespace BillingSystem
             FormResizer.Enable(this);
 
             // Clear the grid's automatic selection AFTER the form is fully shown
-            // (Load runs too early â€” the grid re-selects row 0 during first paint).
+            // (Load runs too early — the grid re-selects row 0 during first paint).
             this.Shown += CustomerListForm_Shown;
+            this.FormClosing += CustomerListForm_FormClosing;
+            this.FormClosed += CustomerListForm_FormClosed;
         }
 
         private void CustomerListForm_Shown(object? sender, EventArgs e)
@@ -130,9 +134,13 @@ namespace BillingSystem
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
-            AddCustomerForm addCustomerForm = new AddCustomerForm();
-            addCustomerForm.ShowDialog();
-            this.Close();
+            using (var addCustomerForm = new AddCustomerForm())
+            {
+                if (addCustomerForm.ShowDialog(this) == DialogResult.OK)
+                {
+                    LoadCustomers();
+                }
+            }
         }
 
         private void LoadCustomers()
@@ -168,7 +176,7 @@ namespace BillingSystem
                             dgvCustomers.Columns["CustomerID"].HeaderText = "ID";
                             dgvCustomers.Columns["FullName"].HeaderText = "Full Name";
                             dgvCustomers.Columns["ContactNumber"].HeaderText = "Contact No.";
-                            dgvCustomers.Columns["Balance"].HeaderText = "Balance (â‚±)";
+                            dgvCustomers.Columns["Balance"].HeaderText = "Balance (?)";
                         }
 
                         lblTitle.Text = $"Customer List  ({dt.Rows.Count} record(s))";
@@ -177,7 +185,7 @@ namespace BillingSystem
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error loading customers:\n{ex.Message}",
+                AppMessageBox.Show($"Error loading customers:\n{ex.Message}",
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -232,7 +240,7 @@ namespace BillingSystem
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error searching customers:\n{ex.Message}",
+                AppMessageBox.Show($"Error searching customers:\n{ex.Message}",
                     "Search Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -243,7 +251,7 @@ namespace BillingSystem
 
             if (string.IsNullOrEmpty(keyword))
             {
-                // Empty search box â†’ show all customers again
+                // Empty search box ? show all customers again
                 LoadCustomers();
             }
             else
@@ -275,18 +283,19 @@ namespace BillingSystem
         {
             if (_selectedCustomerId == 0)
             {
-                MessageBox.Show("Please select a customer to edit.",
+                AppMessageBox.Show("Please select a customer to edit.",
                     "No Selection", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
             // Open AddCustomerForm in EDIT mode, passing the selected CustomerID
-            AddCustomerForm editForm = new AddCustomerForm(_selectedCustomerId);
-
-            // Refresh the grid automatically once the edit form closes
-            editForm.FormClosed += (s, args) => LoadCustomers();
-
-            editForm.ShowDialog(this);
+            using (var editForm = new AddCustomerForm(_selectedCustomerId))
+            {
+                if (editForm.ShowDialog(this) == DialogResult.OK)
+                {
+                    LoadCustomers();
+                }
+            }
         }
 
         private void DeleteCustomer(int customerId)
@@ -297,7 +306,7 @@ namespace BillingSystem
                 {
                     conn.Open();
 
-                    // Parameterized DELETE â€” removes exactly one row
+                    // Parameterized DELETE — removes exactly one row
                     string sql = "DELETE FROM Customers WHERE CustomerID = @CustomerID;";
 
                     using (var cmd = new MySqlCommand(sql, conn))
@@ -308,7 +317,7 @@ namespace BillingSystem
 
                         if (rowsAffected > 0)
                         {
-                            MessageBox.Show("Customer deleted successfully.",
+                            AppMessageBox.Show("Customer deleted successfully.",
                                 "Deleted", MessageBoxButtons.OK, MessageBoxIcon.Information);
                             AuditLogger.Log("DELETE_CUSTOMER",
                                 $"Customer ID {customerId} deleted by {AppSession.CurrentUsername}.");
@@ -319,7 +328,7 @@ namespace BillingSystem
                         }
                         else
                         {
-                            MessageBox.Show("Customer could not be deleted. It may no longer exist.",
+                            AppMessageBox.Show("Customer could not be deleted. It may no longer exist.",
                                 "Delete Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         }
                     }
@@ -327,7 +336,7 @@ namespace BillingSystem
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error deleting customer:\n{ex.Message}",
+                AppMessageBox.Show($"Error deleting customer:\n{ex.Message}",
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -337,13 +346,13 @@ namespace BillingSystem
             // Step 1: Make sure a customer is selected
             if (_selectedCustomerId == 0)
             {
-                MessageBox.Show("Please select a customer to delete.",
+                AppMessageBox.Show("Please select a customer to delete.",
                     "No Selection", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            // Step 2: Confirm before deleting â€” this cannot be undone
-            DialogResult confirm = MessageBox.Show(
+            // Step 2: Confirm before deleting — this cannot be undone
+            DialogResult confirm = AppMessageBox.Show(
                 "Are you sure you want to delete this customer?\n" +
                 "All billing records for this customer will also be deleted.",
                 "Confirm Delete",
@@ -355,7 +364,7 @@ namespace BillingSystem
             {
                 DeleteCustomer(_selectedCustomerId);
             }
-            // If the user clicked No, do nothing â€” the record is preserved
+            // If the user clicked No, do nothing — the record is preserved
         }
 
         private void btnExportExcel_Click(object sender, EventArgs e)
@@ -363,7 +372,7 @@ namespace BillingSystem
             // Make sure there is something to export
             if (dgvCustomers.Rows.Count == 0)
             {
-                MessageBox.Show("There are no records to export.",
+                AppMessageBox.Show("There are no records to export.",
                     "Export to Excel", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
@@ -405,7 +414,7 @@ namespace BillingSystem
                         workbook.SaveAs(saveDialog.FileName);
                     }
 
-                    MessageBox.Show("Customer list exported successfully to Excel.",
+                    AppMessageBox.Show("Customer list exported successfully to Excel.",
                         "Export Complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                     AuditLogger.Log("EXPORT_EXCEL",
@@ -414,7 +423,7 @@ namespace BillingSystem
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Error exporting to Excel:\n{ex.Message}",
+                    AppMessageBox.Show($"Error exporting to Excel:\n{ex.Message}",
                         "Export Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
@@ -442,7 +451,7 @@ namespace BillingSystem
             // Make sure there is something to export
             if (dgvCustomers.Rows.Count == 0)
             {
-                MessageBox.Show("There are no records to export.",
+                AppMessageBox.Show("There are no records to export.",
                     "Export to PDF", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
@@ -521,7 +530,7 @@ namespace BillingSystem
                         document.Save(saveDialog.FileName);
                     }
 
-                    MessageBox.Show("Customer list exported successfully to PDF.",
+                    AppMessageBox.Show("Customer list exported successfully to PDF.",
                         "Export Complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                     AuditLogger.Log("EXPORT_PDF",
@@ -529,7 +538,7 @@ namespace BillingSystem
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Error exporting to PDF:\n{ex.Message}",
+                    AppMessageBox.Show($"Error exporting to PDF:\n{ex.Message}",
                         "Export Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
@@ -542,6 +551,7 @@ namespace BillingSystem
             AuditLogger.Log("LOGOUT",
                 $"{AppSession.CurrentFullName} ({AppSession.CurrentRole}) logged out.");
             AppSession.Clear();
+            _isLoggingOut = true;
 
             // Return to the Login screen and close this window.
             if (_loginForm != null && !_loginForm.IsDisposed)
@@ -551,11 +561,54 @@ namespace BillingSystem
             }
             else
             {
-                // Fallback: no reference available â€” start a fresh Login form.
+                // Fallback: no reference available — start a fresh Login form.
                 new LoginForm().Show();
             }
 
             this.Close();
+        }
+
+        private void CustomerListForm_FormClosing(object? sender, FormClosingEventArgs e)
+        {
+            if (_isLoggingOut || _returningToLogin)
+                return;
+
+            if (e.CloseReason != CloseReason.UserClosing)
+                return;
+
+            AuditLogger.Log("RETURN_TO_LOGIN",
+                $"{AppSession.CurrentFullName} ({AppSession.CurrentRole}) returned to the login form from Customer List.");
+
+            AppSession.Clear();
+            _returningToLogin = true;
+
+            if (_loginForm != null && !_loginForm.IsDisposed)
+            {
+                _loginForm.ResetForLogin();
+                _loginForm.Show();
+            }
+            else
+            {
+                new LoginForm().Show();
+            }
+        }
+
+        private void CustomerListForm_FormClosed(object? sender, FormClosedEventArgs e)
+        {
+            // If the main window closes unexpectedly while the login form is
+            // still hidden, close that hidden login too so the app exits cleanly
+            // instead of leaving a background process with no visible windows.
+            if (_isLoggingOut || _returningToLogin)
+                return;
+
+            if (_loginForm != null && !_loginForm.IsDisposed)
+            {
+                _loginForm.Close();
+            }
+            else
+            {
+                Application.ExitThread();
+            }
         }
 
         private void btnAuditLog_Click(object sender, EventArgs e)
@@ -578,12 +631,12 @@ namespace BillingSystem
 
         private void btnViewBilling_Click(object sender, EventArgs e)
         {
-            // Popup 1 â€” a customer must be selected first. The form does NOT open.
+            // Popup 1 — a customer must be selected first. The form does NOT open.
 
 
             if (_selectedCustomerId == 0)
             {
-                MessageBox.Show("Please select a customer to view billing records.",
+                AppMessageBox.Show("Please select a customer to view billing records.",
                     "No Selection", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
@@ -605,6 +658,10 @@ namespace BillingSystem
         {
             try
             {
+                PermissionInitializer.EnsureManageUsersPermissionExists();
+
+                btnUserManagement.Enabled = false;
+
                 using (var conn = DatabaseConnection.GetConnection())
                 {
                     conn.Open();
@@ -628,7 +685,7 @@ namespace BillingSystem
                                     case "AddCustomer":
                                         btnAdd.Enabled = isAllowed; break;
                                     case "EditCustomer":
-                                        // Edit is triggered by double-click â€” disable
+                                        // Edit is triggered by double-click — disable
                                         // it by blocking the CellDoubleClick handler
                                         dgvCustomers.ReadOnly = !isAllowed;
                                         break;
@@ -646,6 +703,8 @@ namespace BillingSystem
                                         btnManagePermissions.Enabled = isAllowed; break;
                                     case "ChangePassword":
                                         btnChangePassword.Enabled = isAllowed; break;
+                                    case "ManageUsers":
+                                        btnUserManagement.Enabled = isAllowed; break;
                                 }
                             }
                         }
@@ -654,7 +713,7 @@ namespace BillingSystem
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error loading permissions:\n{ex.Message}",
+                AppMessageBox.Show($"Error loading permissions:\n{ex.Message}",
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -700,6 +759,8 @@ namespace BillingSystem
             btnAuditLog.ForeColor = Color.White;
             btnManagePermissions.BackColor = AppTheme.DangerColor;
             btnManagePermissions.ForeColor = Color.White;
+            btnUserManagement.BackColor = AppTheme.PrimaryColor;
+            btnUserManagement.ForeColor = Color.White;
 
             // DataGridView header colors
             dgvCustomers.ColumnHeadersDefaultCellStyle.BackColor = AppTheme.PrimaryColor;
@@ -720,5 +781,21 @@ namespace BillingSystem
         {
 
         }
+
+        private void btnUserManagement_Click(object sender, EventArgs e)
+        {
+            if (!PermissionService.HasPermission(AppSession.CurrentRole, "ManageUsers"))
+            {
+                AuditLogger.Log("ACCESS_DENIED_USER_MANAGEMENT",
+                    $"{AppSession.CurrentUsername} was denied access from the Customer List User Management button.");
+                AppMessageBox.Show("You do not have permission to open User Management.",
+                    "Access Denied", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            FrmUserListForm form = new FrmUserListForm();
+            form.ShowDialog(this);
+        }
     }
 }
+

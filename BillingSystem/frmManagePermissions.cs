@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using MySql.Data.MySqlClient;
@@ -10,7 +10,7 @@ namespace BillingSystem
     public partial class frmManagePermissions : Form
     {
         // Maps each PermissionName to its checkbox control
-        private Dictionary<string, CheckBox> _permCheckboxes;
+        private Dictionary<string, CheckBox> _permCheckboxes = new Dictionary<string, CheckBox>();
 
         public frmManagePermissions()
         {
@@ -20,6 +20,8 @@ namespace BillingSystem
 
         private void frmManagePermissions_Load(object sender, EventArgs e)
         {
+            PermissionInitializer.EnsureManageUsersPermissionExists();
+
             // Map PermissionName strings to their checkbox controls
             _permCheckboxes = new Dictionary<string, CheckBox>
             {
@@ -31,6 +33,7 @@ namespace BillingSystem
                 { "ExportPdf",         chkExportPdf      },
                 { "AuditLogs",         chkAuditLogs      },
                 { "ChangePassword",    chkChangePassword },
+                { "ManageUsers",       chkManageUsers    },
             };
 
             // Populate dropdown and load first role
@@ -40,14 +43,22 @@ namespace BillingSystem
 
         private void cmbRole_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (cmbRole.SelectedItem != null)
-                LoadPermissions(cmbRole.SelectedItem.ToString());
+            string? selectedRole = cmbRole.SelectedItem?.ToString();
+            if (!string.IsNullOrWhiteSpace(selectedRole))
+            {
+                LoadPermissions(selectedRole);
+            }
         }
 
         private void LoadPermissions(string role)
         {
             try
             {
+                foreach (var checkbox in _permCheckboxes.Values)
+                {
+                    checkbox.Checked = false;
+                }
+
                 using (var conn = DatabaseConnection.GetConnection())
                 {
                     conn.Open();
@@ -74,7 +85,7 @@ namespace BillingSystem
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error loading permissions:\n{ex.Message}",
+                AppMessageBox.Show($"Error loading permissions:\n{ex.Message}",
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -82,40 +93,29 @@ namespace BillingSystem
         private void btnSave_Click(object sender, EventArgs e)
         {
             if (cmbRole.SelectedItem == null) return;
-            string role = cmbRole.SelectedItem.ToString();
+            string? role = cmbRole.SelectedItem.ToString();
+            if (string.IsNullOrWhiteSpace(role)) return;
 
             try
             {
                 using (var conn = DatabaseConnection.GetConnection())
                 {
                     conn.Open();
-                    string sql = @"UPDATE UserPermissions
-                                   SET    IsAllowed = @IsAllowed
-                                   WHERE  Role = @Role
-                                     AND  PermissionName = @PermName;";
-
                     foreach (var kvp in _permCheckboxes)
                     {
-                        using (var cmd = new MySqlCommand(sql, conn))
-                        {
-                            cmd.Parameters.AddWithValue("@IsAllowed",
-                                kvp.Value.Checked ? 1 : 0);
-                            cmd.Parameters.AddWithValue("@Role", role);
-                            cmd.Parameters.AddWithValue("@PermName", kvp.Key);
-                            cmd.ExecuteNonQuery();
-                        }
+                        SavePermission(conn, role, kvp.Key, kvp.Value.Checked);
                     }
                 }
 
                 AuditLogger.Log("MANAGE_PERMISSIONS",
                     $"Permissions updated for role '{role}' by {AppSession.CurrentUsername}.");
 
-                MessageBox.Show("Permissions saved successfully.",
+                AppMessageBox.Show("Permissions saved successfully.",
                     "Saved", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error saving permissions:\n{ex.Message}",
+                AppMessageBox.Show($"Error saving permissions:\n{ex.Message}",
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -129,6 +129,39 @@ namespace BillingSystem
         {
 
         }
+
+        private static void SavePermission(MySqlConnection conn, string role, string permissionName, bool isAllowed)
+        {
+            string updateSql = @"UPDATE UserPermissions
+                                 SET    IsAllowed = @IsAllowed
+                                 WHERE  Role = @Role
+                                   AND  PermissionName = @PermName;";
+
+            using (var updateCmd = new MySqlCommand(updateSql, conn))
+            {
+                updateCmd.Parameters.AddWithValue("@IsAllowed", isAllowed ? 1 : 0);
+                updateCmd.Parameters.AddWithValue("@Role", role);
+                updateCmd.Parameters.AddWithValue("@PermName", permissionName);
+
+                int rowsAffected = updateCmd.ExecuteNonQuery();
+                if (rowsAffected > 0)
+                    return;
+            }
+
+            string insertSql = @"INSERT INTO UserPermissions
+                                    (Role, PermissionName, IsAllowed)
+                                 VALUES
+                                    (@Role, @PermName, @IsAllowed);";
+
+            using (var insertCmd = new MySqlCommand(insertSql, conn))
+            {
+                insertCmd.Parameters.AddWithValue("@Role", role);
+                insertCmd.Parameters.AddWithValue("@PermName", permissionName);
+                insertCmd.Parameters.AddWithValue("@IsAllowed", isAllowed ? 1 : 0);
+                insertCmd.ExecuteNonQuery();
+            }
+        }
     }
 }
+
 

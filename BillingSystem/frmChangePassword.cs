@@ -35,7 +35,7 @@ namespace BillingSystem
                 string.IsNullOrWhiteSpace(newPass) ||
                 string.IsNullOrWhiteSpace(retype))
             {
-                MessageBox.Show("Please fill in all three password fields.",
+                AppMessageBox.Show("Please fill in all three password fields.",
                     "Change Password", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
@@ -47,7 +47,7 @@ namespace BillingSystem
                 // identified by the logged-in user's unique ID (never a typed username).
                 if (!CurrentPasswordIsValid(current))
                 {
-                    MessageBox.Show("Your current password is incorrect.",
+                    AppMessageBox.Show("Your current password is incorrect.",
                         "Change Password", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     txtCurrent.Clear();
                     txtCurrent.Focus();
@@ -57,7 +57,7 @@ namespace BillingSystem
                 // --- 2. Password Match check ---
                 if (newPass != retype)
                 {
-                    MessageBox.Show("New Password and Retype Password do not match.",
+                    AppMessageBox.Show("New Password and Retype Password do not match.",
                         "Change Password", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     txtRetype.Clear();
                     txtRetype.Focus();
@@ -71,7 +71,7 @@ namespace BillingSystem
                 {
                     string message = "Your new password does not meet the following requirement(s):\n\n"
                         + "  • " + string.Join("\n  • ", unmet);
-                    MessageBox.Show(message,
+                    AppMessageBox.Show(message,
                         "Change Password", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
@@ -82,14 +82,14 @@ namespace BillingSystem
                 AuditLogger.Log("CHANGE_PASSWORD",
                     $"{AppSession.CurrentUsername} changed their own password.");
 
-                MessageBox.Show("Password changed successfully.",
+                AppMessageBox.Show("Password changed successfully.",
                     "Change Password", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 this.Close();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error changing password:\n{ex.Message}",
+                AppMessageBox.Show($"Error changing password:\n{ex.Message}",
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -158,3 +158,4 @@ namespace BillingSystem
         }
     }
 }
+

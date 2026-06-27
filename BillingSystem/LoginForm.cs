@@ -17,7 +17,7 @@ namespace BillingSystem
             // Step 1: Make sure both fields are filled
             if (string.IsNullOrWhiteSpace(txtUsername.Text))
             {
-                MessageBox.Show("Please enter your username.",
+                AppMessageBox.Show("Please enter your username.",
                     "Login", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 txtUsername.Focus();
                 return;
@@ -25,7 +25,7 @@ namespace BillingSystem
 
             if (string.IsNullOrWhiteSpace(txtPassword.Text))
             {
-                MessageBox.Show("Please enter your password.",
+                AppMessageBox.Show("Please enter your password.",
                     "Login", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 txtPassword.Focus();
                 return;
@@ -71,7 +71,7 @@ namespace BillingSystem
                             else
                             {
                                 // No match found � wrong credentials
-                                MessageBox.Show(
+                                AppMessageBox.Show(
                                     "Invalid username or password.\nPlease try again.",
                                     "Login Failed",
                                     MessageBoxButtons.OK,
@@ -86,7 +86,7 @@ namespace BillingSystem
             catch (Exception ex)
             {
                 // Show an error if the database cannot be reached
-                MessageBox.Show(
+                AppMessageBox.Show(
                     "Database error:\n" + ex.Message,
                     "Connection Error",
                     MessageBoxButtons.OK,
@@ -111,7 +111,7 @@ namespace BillingSystem
             // This gives a clear warning if MySQL is not running.
             if (!DatabaseConnection.TestConnection())
             {
-                MessageBox.Show(
+                AppMessageBox.Show(
                     "Cannot connect to the database.\n\n" +
                     "Please make sure:\n" +
                     "  1. MySQL Server is running.\n" +
@@ -123,6 +123,33 @@ namespace BillingSystem
             }
 
             txtUsername.Focus();
+        }
+
+        private void btnCancel_Click(object sender, EventArgs e)
+        {
+            DialogResult confirm = AppMessageBox.Show(
+                "Are you sure you want to exit the application?",
+                "Exit Application",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+
+            if (confirm == DialogResult.Yes)
+            {
+                AuditLogger.Log("LOGIN_CANCEL_EXIT",
+                    "The application was closed from the login form.");
+                Hide();
+
+                using (var exitSplash = new SplashScreen(SplashScreenMode.Exit))
+                {
+                    exitSplash.ShowDialog(this);
+                }
+
+                Close();
+                return;
+            }
+
+            AuditLogger.Log("LOGIN_CANCEL_ABORTED",
+                "Exit from the login form was cancelled.");
         }
 
 
@@ -138,3 +165,4 @@ namespace BillingSystem
         }
     }
 }
+

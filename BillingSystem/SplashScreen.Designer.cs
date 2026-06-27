@@ -31,8 +31,10 @@
             components = new System.ComponentModel.Container();
             lblAppName = new Label();
             lblTagline = new Label();
+            pnlSpinner = new Panel();
             lblLoading = new Label();
             splashTimer = new System.Windows.Forms.Timer(components);
+            animationTimer = new System.Windows.Forms.Timer(components);
             SuspendLayout();
             // 
             // lblAppName
@@ -57,21 +59,35 @@
             lblTagline.Text = "Water Billing Management System";
             lblTagline.TextAlign = ContentAlignment.MiddleCenter;
             // 
+            // pnlSpinner
+            // 
+            pnlSpinner.BackColor = Color.Transparent;
+            pnlSpinner.Location = new Point(187, 110);
+            pnlSpinner.Name = "pnlSpinner";
+            pnlSpinner.Size = new Size(88, 88);
+            pnlSpinner.TabIndex = 2;
+            pnlSpinner.Paint += pnlSpinner_Paint;
+            // 
             // lblLoading
             // 
             lblLoading.Font = new Font("Segoe UI", 9F, FontStyle.Italic, GraphicsUnit.Point, 0);
             lblLoading.ForeColor = Color.LightBlue;
-            lblLoading.Location = new Point(64, 186);
+            lblLoading.Location = new Point(64, 204);
             lblLoading.Name = "lblLoading";
             lblLoading.Size = new Size(347, 25);
-            lblLoading.TabIndex = 2;
+            lblLoading.TabIndex = 3;
             lblLoading.Text = "Loading...";
             lblLoading.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // splashTimer
             // 
-            splashTimer.Interval = 2500;
+            splashTimer.Interval = 5000;
             splashTimer.Tick += splashTimer_Tick;
+            // 
+            // animationTimer
+            // 
+            animationTimer.Interval = 120;
+            animationTimer.Tick += animationTimer_Tick;
             // 
             // SplashScreen
             // 
@@ -80,6 +96,7 @@
             BackColor = Color.FromArgb(31, 78, 121);
             ClientSize = new Size(482, 253);
             Controls.Add(lblLoading);
+            Controls.Add(pnlSpinner);
             Controls.Add(lblTagline);
             Controls.Add(lblAppName);
             ForeColor = SystemColors.ActiveCaptionText;
@@ -95,7 +112,9 @@
 
         private Label lblAppName;
         private Label lblTagline;
+        private Panel pnlSpinner;
         private Label lblLoading;
         private System.Windows.Forms.Timer splashTimer;
+        private System.Windows.Forms.Timer animationTimer;
     }
 }
