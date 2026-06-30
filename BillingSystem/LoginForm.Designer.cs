@@ -106,8 +106,10 @@
             // 
             // LoginForm
             // 
+            AcceptButton = btnLogin;
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
+            CancelButton = btnCancel;
             ClientSize = new Size(382, 253);
             Controls.Add(btnCancel);
             Controls.Add(btnLogin);

@@ -28,6 +28,8 @@ namespace BillingSystem.Utils
         private Point _appNameBaseLocation;
         private Point _taglineBaseLocation;
         private Point _spinnerBaseLocation;
+        private Point _gifBaseLocation;
+        private Point _statusIconBaseLocation;
         private Point _loadingBaseLocation;
         private SoundPlayer? _splashPlayer;
 
@@ -41,7 +43,8 @@ namespace BillingSystem.Utils
 
         private void SplashScreen_Load(object sender, EventArgs e)
         {
-            BackColor = AppTheme.PrimaryColor;
+            BackColor = Color.Black;
+            ConfigureSplashVisual();
             CacheBaseLocations();
             Opacity = 0d;
             _introOffset = EntranceOffset;
@@ -55,13 +58,19 @@ namespace BillingSystem.Utils
         {
             _frameIndex = (_frameIndex + 1) % 12;
             AdvanceFormAnimation();
-            pnlSpinner.Invalidate();
+
+            if (pnlSpinner.Visible)
+            {
+                pnlSpinner.Invalidate();
+            }
         }
 
         private async void splashTimer_Tick(object sender, EventArgs e)
         {
             splashTimer.Stop();
             pnlSpinner.Visible = false;
+            picSplashGif.Visible = false;
+            lblStatusIcon.Visible = true;
             lblLoading.ForeColor = Color.LightGreen;
             lblLoading.Text = _mode == SplashScreenMode.Startup ? "Ready" : "Goodbye";
 
@@ -119,6 +128,8 @@ namespace BillingSystem.Utils
             _appNameBaseLocation = lblAppName.Location;
             _taglineBaseLocation = lblTagline.Location;
             _spinnerBaseLocation = pnlSpinner.Location;
+            _gifBaseLocation = picSplashGif.Location;
+            _statusIconBaseLocation = lblStatusIcon.Location;
             _loadingBaseLocation = lblLoading.Location;
         }
 
@@ -127,7 +138,25 @@ namespace BillingSystem.Utils
             lblAppName.Location = OffsetPoint(_appNameBaseLocation, _introOffset);
             lblTagline.Location = OffsetPoint(_taglineBaseLocation, _introOffset);
             pnlSpinner.Location = OffsetPoint(_spinnerBaseLocation, _introOffset);
+            picSplashGif.Location = OffsetPoint(_gifBaseLocation, _introOffset);
+            lblStatusIcon.Location = OffsetPoint(_statusIconBaseLocation, _introOffset);
             lblLoading.Location = OffsetPoint(_loadingBaseLocation, _introOffset);
+        }
+
+        private void ConfigureSplashVisual()
+        {
+            string gifPath = Path.Combine(AppContext.BaseDirectory, "Resources", "WaterDrop.gif");
+
+            if (File.Exists(gifPath))
+            {
+                picSplashGif.ImageLocation = gifPath;
+                picSplashGif.Visible = true;
+                pnlSpinner.Visible = false;
+                return;
+            }
+
+            picSplashGif.Visible = false;
+            pnlSpinner.Visible = true;
         }
 
         private static Point OffsetPoint(Point point, int verticalOffset)
